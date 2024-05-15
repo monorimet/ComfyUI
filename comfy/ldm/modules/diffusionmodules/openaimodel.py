@@ -354,7 +354,7 @@ class Timestep(nn.Module):
         return timestep_embedding(t, self.dim)
 
 def apply_control(h, control, name):
-    if control is not None and name in control and len(control[name]) > 0:
+    if control is not None and name in control:
         ctrl = control[name].pop()
         if ctrl is not None:
             try:
@@ -829,7 +829,7 @@ class UNetModel(nn.Module):
         """
         transformer_options["original_shape"] = list(x.shape)
         transformer_options["transformer_index"] = 0
-        transformer_patches = transformer_options.get("patches", {})
+        transformer_patches = transformer_options.get("patches", {}) 
 
         num_video_frames = kwargs.get("num_video_frames", self.default_num_video_frames)
         image_only_indicator = kwargs.get("image_only_indicator", None)
@@ -850,7 +850,6 @@ class UNetModel(nn.Module):
         for id, module in enumerate(self.input_blocks):
             transformer_options["block"] = ("input", id)
             h = forward_timestep_embed(module, h, emb, context, transformer_options, time_context=time_context, num_video_frames=num_video_frames, image_only_indicator=image_only_indicator)
-            h = apply_control(h, control, 'input')
             if "input_block_patch" in transformer_patches:
                 patch = transformer_patches["input_block_patch"]
                 for p in patch:
@@ -865,13 +864,13 @@ class UNetModel(nn.Module):
         transformer_options["block"] = ("middle", 0)
         if self.middle_block is not None:
             h = forward_timestep_embed(self.middle_block, h, emb, context, transformer_options, time_context=time_context, num_video_frames=num_video_frames, image_only_indicator=image_only_indicator)
-        h = apply_control(h, control, 'middle')
+        #h = apply_control(h, control, 'middle')
 
 
         for id, module in enumerate(self.output_blocks):
             transformer_options["block"] = ("output", id)
             hsp = hs.pop()
-            hsp = apply_control(hsp, control, 'output')
+            #hsp = apply_control(hsp, control, 'output')
 
             if "output_block_patch" in transformer_patches:
                 patch = transformer_patches["output_block_patch"]

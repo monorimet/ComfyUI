@@ -147,18 +147,18 @@ def attention_sub_quad(query, key, value, heads, mask=None, attn_precision=None)
     _, _, k_tokens = key.shape
     qk_matmul_size_bytes = batch_x_heads * bytes_per_token * q_tokens * k_tokens
 
-    mem_free_total, mem_free_torch = model_management.get_free_memory(query.device, True)
+    #mem_free_total, mem_free_torch = model_management.get_free_memory(query.device, True)
 
     kv_chunk_size_min = None
     kv_chunk_size = None
     query_chunk_size = None
 
-    for x in [4096, 2048, 1024, 512, 256]:
-        count = mem_free_total / (batch_x_heads * bytes_per_token * x * 4.0)
-        if count >= k_tokens:
-            kv_chunk_size = k_tokens
-            query_chunk_size = x
-            break
+    #for x in [4096, 2048, 1024, 512, 256]:
+    #    count = mem_free_total / (batch_x_heads * bytes_per_token * x * 4.0)
+    #    if count >= k_tokens:
+    #        kv_chunk_size = k_tokens
+    #        query_chunk_size = x
+    #        break
 
     if query_chunk_size is None:
         query_chunk_size = 512
@@ -204,7 +204,7 @@ def attention_split(q, k, v, heads, mask=None, attn_precision=None):
 
     r1 = torch.zeros(q.shape[0], q.shape[1], v.shape[2], device=q.device, dtype=q.dtype)
 
-    mem_free_total = model_management.get_free_memory(q.device)
+    #mem_free_total = model_management.get_free_memory(q.device)
 
     if attn_precision == torch.float32:
         element_size = 4
@@ -220,8 +220,8 @@ def attention_split(q, k, v, heads, mask=None, attn_precision=None):
     steps = 1
 
 
-    if mem_required > mem_free_total:
-        steps = 2**(math.ceil(math.log(mem_required / mem_free_total, 2)))
+    #if mem_required > mem_free_total:
+    #    steps = 2**(math.ceil(math.log(mem_required / mem_free_total, 2)))
         # print(f"Expected tensor size:{tensor_size/gb:0.1f}GB, cuda free:{mem_free_cuda/gb:0.1f}GB "
         #      f"torch free:{mem_free_torch/gb:0.1f} total:{mem_free_total/gb:0.1f} steps:{steps}")
 
