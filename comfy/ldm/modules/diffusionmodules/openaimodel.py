@@ -818,7 +818,7 @@ class UNetModel(nn.Module):
             #nn.LogSoftmax(dim=1)  # change to cross_entropy and produce non-normalized logits
         )
 
-    def forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_options={}, **kwargs):
+    def forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_opts={}, **kwargs):
         """
         Apply the model to an input batch.
         :param x: an [N x C x ...] Tensor of inputs.
@@ -827,6 +827,10 @@ class UNetModel(nn.Module):
         :param y: an [N] Tensor of labels, if class-conditional.
         :return: an [N x C x ...] Tensor of outputs.
         """
+        transformer_options = {
+            "cond_or_uncond": transformer_opts.get("cond_or_uncond", [1, 0]),
+            "sigmas": transformer_opts.get("sigmas", None),
+        }
         transformer_options["original_shape"] = list(x.shape)
         transformer_options["transformer_index"] = 0
         transformer_patches = transformer_options.get("patches", {}) 
